@@ -30,6 +30,10 @@ function renderParams(traverse, node, path, state) {
   utils.append(') => ', state);
 }
 
+function renderNoParams(traverse, node, path, state) {
+	utils.append('() =>', state);
+}
+
 
 /**
  * Main Visitor.
@@ -41,22 +45,32 @@ function functionToArrowVisitor(traverse, node, path, state) {
   if(node.id) return;
 
   //write params if any, then write arrow
+  var renderFnParams = node.params.length
+  	? renderParams
+  	: renderNoParams;
+
+
   if(node.params.length) {
   	utils.catchupWhiteOut(node.params[0].range[0], state);
-  	renderParams(traverse, node, path, state);
-  	utils.catchupWhiteOut(node.body.range[0], state);
-  } else {
-  	utils.append('() =>', state);
-  	utils.catchupWhiteOut(node.body.range[0], state);
   }
+
+  renderFnParams(traverse, node, path, state);
+  utils.catchupWhiteOut(node.body.range[0], state);
 }
 functionToArrowVisitor.test = function(node, path, state) {
   return isES5FunctionNode(node);
 };
 
 
+function prettyPrintVisitor(traverse, node, path, state) {
+	//TODO pprint
+}
+prettyPrintVisitor.test = function() {
+	return true;
+}
+
 var transformedFileData = jstransform.transform(
-  [functionToArrowVisitor],
+  [functionToArrowVisitor, prettyPrintVisitor],
   fs.readFileSync(process.argv[2], 'utf8').toString()
 );
 
