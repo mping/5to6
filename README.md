@@ -1,0 +1,16 @@
+# 5to6
+
+Convert your es5 code to es5, using basic transforms.
+Right now what happens is that simple anonymous functions are converted to arrow syntax.
+
+```
+function(a,b,c) {
+   a = b + c;
+   return a + 2;
+}
+```
+
+gets converted to 
+```
+(a,b,c) => {a = b + c; return a + 2;}
+```

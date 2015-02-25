@@ -1,0 +1,29 @@
+{
+  "name": "5to6",
+  "version": "0.0.1",
+  "description": "jumpstart you es6 usage by converting all your es5 code to es6",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mping/5to6"
+  },
+  "keywords": [
+    "es5",
+    "es6",
+    "ast",
+    "ecma5",
+    "ecma6"
+  ],
+  "author": "Miguel Ping <miguel.ping@gmail.com> (https://github.com/mping)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mping/5to6/issues"
+  },
+  "homepage": "https://github.com/mping/5to6",
+  "dependencies": {
+    "jstransform": "~9.1.1"
+  }
+}
