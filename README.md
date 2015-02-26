@@ -10,7 +10,11 @@ function(a,b,c) {
 }
 ```
 
-gets converted to 
+gets converted to
 ```
 (a,b,c) => {a = b + c; return a + 2;}
 ```
+
+## Using
+
+Just call ```node index.js <file.js>````to transpile to sysout.
