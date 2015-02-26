@@ -1,6 +1,6 @@
 # 5to6
 
-Convert your es5 code to es5, using basic transforms.
+Convert your es5 code to es6, using basic transforms.
 Right now what happens is that simple anonymous functions are converted to arrow syntax.
 
 ```
