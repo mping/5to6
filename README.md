@@ -17,4 +17,4 @@ gets converted to
 
 ## Using
 
-Just call ```node index.js <file.js>````to transpile to sysout.
+Just call ```node index.js <file.js>``` to transpile to sysout.
