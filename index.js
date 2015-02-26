@@ -65,17 +65,22 @@ function functionToArrowVisitor(traverse, node, path, state) {
   var fnBody = node.body,
      bodyLen = fnBody.body.length;
 
+  //body is multiline
   if(bodyLen > 1) {
-  	//utils.catchupWhiteOut(node.body.range[0], state);
   	utils.catchup(node.body.range[0], state, elideString)
   }
-  else {
+  //body is single line
+  else if(bodyLen === 1) {
   	utils.append('{', state);
   	utils.catchup(fnBody.body[0].range[0], state, elideString);
 
   	traverse(fnBody, path, state);
   	utils.append('}', state);
   	utils.catchupWhiteOut(node.range[1], state);
+  }
+  //no body
+  else {
+  	utils.catchupWhiteOut(node.body.range[0], state);
   }
 }
 functionToArrowVisitor.test = function(node, path, state) {

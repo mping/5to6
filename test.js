@@ -17,4 +17,7 @@ var cc = function     () {
 	var b=1;
 	return "cc" ? 1 : 2;
 }
+var b = {
+	controller: ['$scope', function($scope){}]
+}
 
