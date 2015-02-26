@@ -40,6 +40,30 @@ function renderNoParams(traverse, node, path, state) {
 	utils.append('() =>', state);
 }
 
+/**
+ * Indicates if the node has a member expression
+ * node should be a function node
+ */
+function fnBodyHasMemberExpression(node) {
+	for (var n in node.body.body) {
+		var exprStmt = node.body.body[n];
+		if(exprStmt.type === Syntax.ExpressionStatement
+			&& exprStmt.expression.callee
+			&& exprStmt.expression.callee.type === Syntax.MemberExpression) return true;
+	}
+	return false;
+}
+
+
+/**
+ * functions that
+ * - are named
+ * - have a `this` binding
+ * cannot be simplified to arrow functions
+ */
+function isUneligibleForArrow(traverse, node, path, state) {
+	return node.id || fnBodyHasMemberExpression(node);
+}
 
 /**
  * Main Visitor.
@@ -48,7 +72,7 @@ function renderNoParams(traverse, node, path, state) {
  */
 function functionToArrowVisitor(traverse, node, path, state) {
   //named functions can be referenced elsewhere, we don't want to change that
-  if(node.id) return;
+  if(isUneligibleForArrow(traverse, node, path, state)) return;
 
   //write params if any, then write arrow
   var renderFnParams = node.params.length
@@ -88,6 +112,10 @@ functionToArrowVisitor.test = function(node, path, state) {
 };
 
 
+
+/**
+ * main entry point
+ */
 var visitors = [functionToArrowVisitor];
 
 if(process.argv.length > 2) {
