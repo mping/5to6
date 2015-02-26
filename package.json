@@ -4,7 +4,7 @@
   "description": "jumpstart you es6 usage by converting all your es5 code to es6",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "parse": "node index.js"
   },
   "repository": {
     "type": "git",

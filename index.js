@@ -9,6 +9,12 @@ var jstransform = require('jstransform');
 var utils = require('jstransform/src/utils');
 
 var Syntax = jstransform.Syntax;
+var d=0;
+
+
+function elideString(str) {
+	return '';
+}
 
 function isES5FunctionNode(node) {
   return node.type === Syntax.FunctionDeclaration
@@ -49,28 +55,36 @@ function functionToArrowVisitor(traverse, node, path, state) {
   	? renderParams
   	: renderNoParams;
 
-
   if(node.params.length) {
-  	utils.catchupWhiteOut(node.params[0].range[0], state);
+  	//utils.catchupWhiteOut(node.params[0].range[0], state);
+  	utils.catchup(node.params[0].range[0], state, elideString)
   }
-
   renderFnParams(traverse, node, path, state);
-  utils.catchupWhiteOut(node.body.range[0], state);
+
+  //can we shorten the fn body?
+  var fnBody = node.body,
+     bodyLen = fnBody.body.length;
+
+  if(bodyLen > 1) {
+  	//utils.catchupWhiteOut(node.body.range[0], state);
+  	utils.catchup(node.body.range[0], state, elideString)
+  }
+  else {
+  	utils.append('{', state);
+  	utils.catchup(fnBody.body[0].range[0], state, elideString);
+
+  	traverse(fnBody, path, state);
+  	utils.append('}', state);
+  	utils.catchupWhiteOut(node.range[1], state);
+  }
 }
 functionToArrowVisitor.test = function(node, path, state) {
   return isES5FunctionNode(node);
 };
 
-
-function prettyPrintVisitor(traverse, node, path, state) {
-	//TODO pprint
-}
-prettyPrintVisitor.test = function() {
-	return true;
-}
-
+console.log(process.argv)
 var transformedFileData = jstransform.transform(
-  [functionToArrowVisitor, prettyPrintVisitor],
+  [functionToArrowVisitor],
   fs.readFileSync(process.argv[2], 'utf8').toString()
 );
 
