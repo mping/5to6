@@ -82,10 +82,31 @@ functionToArrowVisitor.test = function(node, path, state) {
   return isES5FunctionNode(node);
 };
 
-console.log(process.argv)
-var transformedFileData = jstransform.transform(
-  [functionToArrowVisitor],
-  fs.readFileSync(process.argv[2], 'utf8').toString()
-);
 
-console.log(transformedFileData.code);
+var visitors = [functionToArrowVisitor];
+
+if(process.argv.length > 2) {
+	var output = jstransform.transform(visitors, fs.readFileSync(process.argv[2], 'utf8').toString());
+	process.stdout.write(output.code);
+}
+else {
+	var stdin = process.stdin,
+	    stdout = process.stdout,
+	    inputChunks = [];
+
+	stdin.resume();
+	stdin.setEncoding('utf8');
+
+	stdin.on('data', function (chunk) {
+	    inputChunks.push(chunk);
+	});
+
+	stdin.on('end', function () {
+	    var inputFile = inputChunks.join();
+	    var output = jstransform.transform(visitors, inputFile);
+	    //process.stdout.write(output.code);
+	    console.log(output.code)
+	});
+}
+
+

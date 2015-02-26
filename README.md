@@ -18,3 +18,12 @@ gets converted to
 ## Using
 
 Just call ```node index.js <file.js>``` to transpile to sysout.
+
+```
+> node index.js test.js
+
+alternatively, write directly to same infile
+
+> cat test.js | node index.js | tee test.js
+
+```
