@@ -41,8 +41,8 @@ function renderNoParams(traverse, node, path, state) {
 }
 
 
-function containsImmediateThisExpression(node, root) {
-  var foundThisExpression = false;
+function containsImmediateUneligibleExpr(node, root) {
+  var foundUneligible = false;
 
   function nodeTypeAnalyzer(n) {
   	if (n !== root && n.type === Syntax.FunctionExpression) {
@@ -50,15 +50,18 @@ function containsImmediateThisExpression(node, root) {
   		return false;
   	}
 
-    if (n.type === Syntax.ThisExpression) {
-      foundThisExpression = true;
+  	//TODO arguments are uneligible only if they are on top level
+    if (n.type === Syntax.ThisExpression
+    	|| (n.type === Syntax.Identifier && n.name === 'arguments')) {
+
+      foundUneligible = true;
       return false; //stop
     }
   }
 
   function nodeTypeTraverser(child, path, state) {
-    if (!foundThisExpression) {
-      foundThisExpression = containsImmediateThisExpression(child, root);
+    if (!foundUneligible) {
+      foundUneligible = containsImmediateUneligibleExpr(child, root);
     }
   }
   utils.analyzeAndTraverse(
@@ -67,15 +70,15 @@ function containsImmediateThisExpression(node, root) {
     node,
     []
   );
-  return foundThisExpression;
+  return foundUneligible;
 }
 
 /**
  * Indicates if the node has a member expression
  * node should be a function node
  */
-function fnBodyHasMemberExpression(traverse, node, path, state) {
-	return containsImmediateThisExpression(node, node);
+function fnBodyHasUneligibleExpr(traverse, node, path, state) {
+	return containsImmediateUneligibleExpr(node, node);
 }
 
 
@@ -86,8 +89,8 @@ function fnBodyHasMemberExpression(traverse, node, path, state) {
  * cannot be simplified to arrow functions
  */
 function isUneligibleForArrow(traverse, node, path, state) {
-	//somehow we're traversing the same node twice...
-	return node.id || fnBodyHasMemberExpression(traverse, node, path, state);
+	//TODO named functions are uneligible only if referenced
+	return node.id || fnBodyHasUneligibleExpr(traverse, node, path, state);
 }
 
 /**
