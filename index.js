@@ -113,7 +113,6 @@ function functionToArrowVisitor(traverse, node, path, state) {
   	//utils.catchupWhiteOut(node.params[0].range[0], state);
   	utils.catchup(node.params[0].range[0], state, elideString)
   }
-  console.log(node.loc)
   renderFnParams(traverse, node, path, state);
 
   //can we shorten the fn body?
