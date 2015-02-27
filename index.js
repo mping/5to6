@@ -9,7 +9,7 @@ var jstransform = require('jstransform');
 var utils = require('jstransform/src/utils');
 
 var Syntax = jstransform.Syntax;
-var d=0;
+var knownLocs = [];
 
 
 function elideString(str) {
@@ -40,18 +40,42 @@ function renderNoParams(traverse, node, path, state) {
 	utils.append('() =>', state);
 }
 
+
+function containsImmediateThisExpression(node, root) {
+  var foundThisExpression = false;
+
+  function nodeTypeAnalyzer(n) {
+  	if (n !== root && n.type === Syntax.FunctionExpression) {
+  		//stop, the new function expression will be analyzed later
+  		return false;
+  	}
+
+    if (n.type === Syntax.ThisExpression) {
+      foundThisExpression = true;
+      return false; //stop
+    }
+  }
+
+  function nodeTypeTraverser(child, path, state) {
+    if (!foundThisExpression) {
+      foundThisExpression = containsImmediateThisExpression(child, root);
+    }
+  }
+  utils.analyzeAndTraverse(
+    nodeTypeAnalyzer,
+    nodeTypeTraverser,
+    node,
+    []
+  );
+  return foundThisExpression;
+}
+
 /**
  * Indicates if the node has a member expression
  * node should be a function node
  */
-function fnBodyHasMemberExpression(node) {
-	for (var n in node.body.body) {
-		var exprStmt = node.body.body[n];
-		if(exprStmt.type === Syntax.ExpressionStatement
-			&& exprStmt.expression.callee
-			&& exprStmt.expression.callee.type === Syntax.MemberExpression) return true;
-	}
-	return false;
+function fnBodyHasMemberExpression(traverse, node, path, state) {
+	return containsImmediateThisExpression(node, node);
 }
 
 
@@ -62,7 +86,8 @@ function fnBodyHasMemberExpression(node) {
  * cannot be simplified to arrow functions
  */
 function isUneligibleForArrow(traverse, node, path, state) {
-	return node.id || fnBodyHasMemberExpression(node);
+	//somehow we're traversing the same node twice...
+	return node.id || fnBodyHasMemberExpression(traverse, node, path, state);
 }
 
 /**
@@ -71,6 +96,11 @@ function isUneligibleForArrow(traverse, node, path, state) {
  * Named functions are ignored because we would need to determine if the name is used somewhere.
  */
 function functionToArrowVisitor(traverse, node, path, state) {
+  // HACK HACK HACK can't really tell why a node is being traversed twice
+  // my guess is that when I call `traverse(fnBody.body, path, state);`
+  // I'll enter the visitor again, and a second time because of the initial js parsing
+  if(knownLocs.indexOf(node.loc) >=0) return; knownLocs.push(node.loc);
+
   //named functions can be referenced elsewhere, we don't want to change that
   if(isUneligibleForArrow(traverse, node, path, state)) return;
 
@@ -83,6 +113,7 @@ function functionToArrowVisitor(traverse, node, path, state) {
   	//utils.catchupWhiteOut(node.params[0].range[0], state);
   	utils.catchup(node.params[0].range[0], state, elideString)
   }
+  console.log(node.loc)
   renderFnParams(traverse, node, path, state);
 
   //can we shorten the fn body?
@@ -98,9 +129,12 @@ function functionToArrowVisitor(traverse, node, path, state) {
   	utils.append('{', state);
   	utils.catchup(fnBody.body[0].range[0], state, elideString);
 
-  	traverse(fnBody, path, state);
+  	//this bugger is traversing same function twice! check test.js
+  	traverse(fnBody.body, path, state);
+
   	utils.append('}', state);
-  	utils.catchupWhiteOut(node.range[1], state);
+
+  	//utils.catchupWhiteOut(node.range[1], state);
   }
   //no body
   else {

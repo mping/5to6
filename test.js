@@ -1,24 +1,14 @@
-/*
-function noParams() {
-	return "noParams";
-}
-
-function params(a) {
-	a=2;
-	return a;
-}
-
-var bb = function(a,b,c) {
-	return "b" + c;
-}
-
-var cc = function     () {
-	var b=1;
-	return "cc" ? 1 : 2;
-}
-var b = {
-	controller: ['$scope', function($scope){}]
-}
-
+/*document.addEventListener('load', function () { if(false) this.getElementById("a") })
+document.addEventListener('load', function () {
+	var b = function(){
+		if(false) this.getElementById("a")
+	}
+})
 */
-document.addEventListener('load', function () { getElementById("ab") })
+a.directive('breadcrumbs', ['a', function(a){
+    return {
+      link: function(b) {}
+    }
+}]);
+
+
