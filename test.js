@@ -7,8 +7,5 @@
  */
 
 
- var a = function() {
- 	console.log(
- 		arguments
- 		);
+ var a = function() {console.log(arguments); return 1;
  }
