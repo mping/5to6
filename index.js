@@ -132,8 +132,7 @@ function functionToArrowVisitor(traverse, node, path, state) {
   	traverse(fnBody.body, path, state);
 
   	utils.append('}', state);
-
-  	//utils.catchupWhiteOut(node.range[1], state);
+  	utils.catchupWhiteOut(node.range[1], state);
   }
   //no body
   else {

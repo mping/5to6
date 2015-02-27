@@ -5,10 +5,12 @@ document.addEventListener('load', function () {
 	}
 })
 */
-a.directive('breadcrumbs', ['a', function(a){
-    return {
-      link: function(b) {}
-    }
-}]);
+angular
+.module('mainApp.cfg', [])
+.config(['$compileProvider', function($compileProvider) {
+  // speed bump https://docs.angularjs.org/guide/production#disabling-debug-data
+  // can always call angular.reloadWithDebugInfo(); later
+  $compileProvider.debugInfoEnabled(!env.production);
+}])
 
 
