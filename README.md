@@ -30,6 +30,6 @@ alternatively, write directly to same infile
 ```
 
 ## TODO
-- [~] use parens-free expressions when possible
+- [x] use parens-free expressions when possible
 - [ ] allow flexible configuration
 - [ ] add more visitors (single arrow fn expressions to parens free returns, var to let/const, etc)
