@@ -91,7 +91,6 @@ function parensFreeVisitor(traverse, node, path, state) {
 			//passthrough
 			break;
 	}
-	utils.catchupWhiteOut(node.body.range[1], state);
 }
 
 parensFreeVisitor.test = function(node, path, state) {
