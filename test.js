@@ -7,7 +7,8 @@
  */
 
 
- var a = function(arr) {
- 	_.map(function(a){return a/2})
- 	return 1+arr;
- }
+angular
+.module('mainApp.cfg', [])
+.config(['$anchorScrollProvider',function($anchorScrollProvider) {
+  $anchorScrollProvider.disableAutoScrolling();
+}])

@@ -128,8 +128,10 @@ function functionToArrowVisitor(traverse, node, path, state) {
   else if(bodyLen === 1) {
     //can it be like (a) => fn(a+b)?
     //or we should use a block?
+    //TODO expression statements should be candidates also
     var canBeParensFree = fnBody.body[0].type === Syntax.ReturnStatement
                             && fnBody.body.length === 1;
+
 
     var prefix = (canBeParensFree ? '' : '{'),
         suffix = (canBeParensFree ? '' : '}'),
@@ -141,7 +143,7 @@ function functionToArrowVisitor(traverse, node, path, state) {
     //this bugger is traversing same function twice!
   	traverse(fnBody.body, path, state);
 
-    utils.append(prefix, state);
+    utils.append(suffix, state);
     //finally end the body
   	utils.catchupWhiteOut(node.range[1], state);
   }
