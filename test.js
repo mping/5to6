@@ -7,5 +7,7 @@
  */
 
 
- var a = function() {console.log(arguments); return 1;
+ var a = function(arr) {
+ 	_.map(function(a){return a/2})
+ 	return 1+arr;
  }

@@ -21,11 +21,6 @@ function isES5FunctionNode(node) {
          || node.type === Syntax.FunctionExpression;
 }
 
-function isParensFreeSingleParam(node, state) {
-  return node.params.length === 1 &&
-    state.g.source[state.g.position] !== '(';
-}
-
 function renderParams(traverse, node, path, state) {
   utils.append('(', state);
   if (node.params.length !== 0) {
@@ -90,7 +85,10 @@ function fnBodyHasUneligibleExpr(traverse, node, path, state) {
  */
 function isUneligibleForArrow(traverse, node, path, state) {
 	//TODO named functions are uneligible only if referenced
-	return node.id || fnBodyHasUneligibleExpr(traverse, node, path, state);
+	return node.id
+           //only for small funcs TODO: should be configurable
+          || (node.loc.end.line - node.loc.start.line) > 3
+          || fnBodyHasUneligibleExpr(traverse, node, path, state);
 }
 
 /**
@@ -128,13 +126,23 @@ function functionToArrowVisitor(traverse, node, path, state) {
   }
   //body is single line
   else if(bodyLen === 1) {
-  	utils.append('{', state);
-  	utils.catchup(fnBody.body[0].range[0], state, elideString);
+    //can it be like (a) => fn(a+b)?
+    //or we should use a block?
+    var canBeParensFree = fnBody.body[0].type === Syntax.ReturnStatement
+                            && fnBody.body.length === 1;
 
-  	//this bugger is traversing same function twice! check test.js
+    var prefix = (canBeParensFree ? '' : '{'),
+        suffix = (canBeParensFree ? '' : '}'),
+     catchTrgt = (canBeParensFree ? fnBody.body[0].argument.range[0] : fnBody.body[0].range[0]);
+
+  	utils.append(prefix, state);
+  	utils.catchup(catchTrgt, state, elideString);
+
+    //this bugger is traversing same function twice!
   	traverse(fnBody.body, path, state);
 
-  	utils.append('}', state);
+    utils.append(prefix, state);
+    //finally end the body
   	utils.catchupWhiteOut(node.range[1], state);
   }
   //no body
