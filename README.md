@@ -28,3 +28,8 @@ alternatively, write directly to same infile
 > cat test.js | node index.js | tee test.js
 
 ```
+
+## TODO
+[~] use parens-free expressions when possible
+[ ] allow flexible configuration
+[ ] add more visitors (single arrow fn expressions to parens free returns, var to let/const, etc)

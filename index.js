@@ -128,24 +128,15 @@ function functionToArrowVisitor(traverse, node, path, state) {
   else if(bodyLen === 1) {
     //can it be like (a) => fn(a+b)?
     //or we should use a block?
-    //TODO expression statements should be candidates also
-    var canBeParensFree = fnBody.body[0].type === Syntax.ReturnStatement
-                            && fnBody.body.length === 1;
+  	utils.append('{', state);
+  	utils.catchup(fnBody.body[0].range[0], state, elideString);
 
+    //hopefully we're removing the last ';' because we can't have that in parens free mode
+  	traverse(fnBody.body, path, state);//this bugger is traversing same function twice!
 
-    var prefix = (canBeParensFree ? '' : '{'),
-        suffix = (canBeParensFree ? '' : '}'),
-     catchTrgt = (canBeParensFree ? fnBody.body[0].argument.range[0] : fnBody.body[0].range[0]);
-
-  	utils.append(prefix, state);
-  	utils.catchup(catchTrgt, state, elideString);
-
-    //this bugger is traversing same function twice!
-  	traverse(fnBody.body, path, state);
-
-    utils.append(suffix, state);
+    utils.append('}', state);
     //finally end the body
-  	utils.catchupWhiteOut(node.range[1], state);
+  	utils.catchupWhiteOut(node.body.range[1], state);
   }
   //no body
   else {
