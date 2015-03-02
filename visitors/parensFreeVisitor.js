@@ -76,7 +76,7 @@ function parensFreeVisitor(traverse, node, path, state) {
 			break;
 
 		case Syntax.ExpressionStatement:
-			utils.append('(', state);
+			utils.append('void (', state); //void is the proper transpiling, because the expression returns undefined
 			utils.catchup(fnBody.body[0].range[0], state, helper.elideString);
 
 			traverse(fnBody.body[0], path, state);
