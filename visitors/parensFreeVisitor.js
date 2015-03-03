@@ -58,7 +58,6 @@ function parensFreeVisitor(traverse, node, path, state) {
 	}
 	renderFnParams(traverse, node, path, state);
 
-	console.log(node.body)
 	var fnBody = node.body;
 	switch(fnBody.body[0].type) {
 		case Syntax.ReturnStatement:
