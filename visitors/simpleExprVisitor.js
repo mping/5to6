@@ -41,7 +41,7 @@ function isUneligibleForArrow(node, path, state) {
  * Replace basic functions to es6 notation.
  * Named functions are ignored because we would need to determine if the name is used somewhere.
  */
-function parensFreeVisitor(traverse, node, path, state) {
+function simpleExprVisitor(traverse, node, path, state) {
 	// HACK HACK HACK can't really tell why a node is being traversed twice
 	// my guess is that when I call `traverse(fnBody.body, path, state);`
 	// I'll enter the visitor again, and a second time because of the initial js parsing
@@ -65,38 +65,37 @@ function parensFreeVisitor(traverse, node, path, state) {
 			//elide "return " string so we can convert it to
 			utils.catchup(fnBody.body[0].range[0]+'return'.length+1, state, helper.elideString);
 
-			//hopefully we're removing the last ';' because we can't have that in parens free mode
-			traverse(fnBody.body[0], path, state);
+			//TODO: hopefully we're removing the last ';' because we can't have that in these exprs
+			fnBody.body[0].range[1] = fnBody.body[0].range[1] -1;
+			traverse(fnBody.body, path, state);
 
 			utils.append(')', state);
 			//finally end the body
-			utils.catchupWhiteOut(node.body.range[1], state);
+			//utils.catchupWhiteOut(node.body.range[1], state);
+			utils.catchup(node.body.range[1]+1, state, helper.elideString);
 
 			break;
 
 		case Syntax.ExpressionStatement:
-			utils.append('void (', state); //void is the proper transpiling, because the expression returns undefined
+			utils.append('(', state); //void is the proper transpiling, because the expression returns undefined
 			utils.catchup(fnBody.body[0].range[0], state, helper.elideString);
 
 			traverse(fnBody.body[0], path, state);
 
 			utils.append(')', state);
 			//finally end the body
-			utils.catchupWhiteOut(node.body.range[1], state);
-
-		//TODO void exprs
-		default:
-			//traverse(fnBody.body[0], path, state);
-			//passthrough
-			break;
+			//utils.catchupWhiteOut(node.body.range[1], state);
+			utils.catchup(node.body.range[1]+1, state, helper.elideString);
 	}
 }
 
-parensFreeVisitor.test = function(node, path, state) {
+simpleExprVisitor.test = function(node, path, state) {
 	return node.type === Syntax.ArrowFunctionExpression
 			&& node.body.body.length === 1
+			&& (node.body.body[0].type === Syntax.ReturnStatement
+				|| node.body.body[0].type === Syntax.ExpressionStatement)
 			&& !isUneligibleForArrow(node, path, state);
 };
 
 
-exports.visitor = parensFreeVisitor;
+exports.visitor = simpleExprVisitor;

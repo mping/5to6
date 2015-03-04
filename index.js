@@ -7,13 +7,13 @@
 var fs = require('fs');
 var jstransform = require('jstransform');
 var fnToArrowVisitor = require('./visitors/functionToArrowVisitor').visitor;
-var parensFreeVisitor = require('./visitors/parensFreeVisitor').visitor;
+var simpleExprVisitor = require('./visitors/simpleExprVisitor').visitor;
 
 
 /**
  * main entry point
  */
-var visitors = [fnToArrowVisitor, parensFreeVisitor];
+var visitors = [fnToArrowVisitor, simpleExprVisitor];
 
 // I prefer to ensure that jstransform re-parses the code
 // otherwise the fnToArrow would have to generate a new ArrowFunctionExpression node
