@@ -35,4 +35,5 @@ alternatively, write directly to same infile
  - [x] parens free arrows
  - [ ] const
  - [ ] let
+ - [ ] default argument values
  - ...
